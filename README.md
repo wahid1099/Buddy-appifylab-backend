@@ -5,6 +5,8 @@ Node.js backend API for the BuddyScript social media application built with Expr
 ## Features
 
 - **Authentication**: JWT-based authentication with secure password hashing
+- **User Profile Management**: Customizable profiles with bio, cover photo, and avatar
+- **Follow System**: Follow/unfollow users to build your network
 - **Posts**: Create, read, delete posts with image upload support
 - **Visibility Control**: Public and private posts
 - **Comments & Replies**: Nested commenting system
@@ -43,7 +45,7 @@ Node.js backend API for the BuddyScript social media application built with Expr
      NODE_ENV=development
      MONGODB_URI=mongodb://localhost:27017/buddyscript
      JWT_SECRET=your_secret_key_here
-     JWT_EXPIRE=7d
+     JWT_EXPIRE=30d
      FRONTEND_URL=http://localhost:5173
      ```
 
@@ -60,7 +62,7 @@ Node.js backend API for the BuddyScript social media application built with Expr
    npm start
    ```
 
-The server will start on `http://localhost:5000`
+   The server will start on `http://localhost:5000`
 
 ## API Endpoints
 
@@ -69,6 +71,16 @@ The server will start on `http://localhost:5000`
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 - `GET /api/auth/me` - Get current user (Protected)
+
+### Users & Profiles
+
+- `GET /api/users/:id` - Get user profile (Protected)
+- `PUT /api/users/:id` - Update user profile (Protected)
+- `GET /api/users/:id/posts` - Get user's posts (Protected)
+- `POST /api/users/:id/follow` - Follow a user (Protected)
+- `DELETE /api/users/:id/follow` - Unfollow a user (Protected)
+- `GET /api/users/:id/followers` - Get followers list (Protected)
+- `GET /api/users/:id/following` - Get following list (Protected)
 
 ### Posts
 
@@ -108,11 +120,13 @@ backend/
 │   │   └── Like.js              # Like schema
 │   ├── controllers/
 │   │   ├── authController.js    # Auth logic
+│   │   ├── userController.js    # User profile & follow logic
 │   │   ├── postController.js    # Post logic
 │   │   ├── commentController.js # Comment logic
 │   │   └── likeController.js    # Like logic
 │   ├── routes/
 │   │   ├── authRoutes.js        # Auth routes
+│   │   ├── userRoutes.js        # User routes
 │   │   ├── postRoutes.js        # Post routes
 │   │   ├── commentRoutes.js     # Comment routes
 │   │   └── likeRoutes.js        # Like routes
@@ -133,7 +147,8 @@ backend/
 ## Database Schema
 
 ### User
-- firstName, lastName, email (unique), password (hashed), profileImage
+- firstName, lastName, email (unique), password (hashed), profileImage, coverImage
+- bio, followers (ref User[]), following (ref User[])
 - Indexed on: email
 
 ### Post
@@ -183,7 +198,7 @@ npm start
 | NODE_ENV | Environment | development |
 | MONGODB_URI | MongoDB connection string | mongodb://localhost:27017/buddyscript |
 | JWT_SECRET | JWT secret key | (required) |
-| JWT_EXPIRE | JWT expiration time | 7d |
+| JWT_EXPIRE | JWT expiration time | 30d |
 | FRONTEND_URL | Frontend URL for CORS | http://localhost:5173 |
 
 ## Error Handling
