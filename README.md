@@ -62,7 +62,7 @@ Node.js backend API for the BuddyScript social media application built with Expr
    npm start
    ```
 
-   The server will start on `http://localhost:5000`
+   The server will start on `https://buddy-appifylab-backend.vercel.app`
 
 ## API Endpoints
 
