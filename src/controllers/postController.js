@@ -1,6 +1,7 @@
 import Post from '../models/Post.js';
 import Like from '../models/Like.js';
 import Comment from '../models/Comment.js';
+import { uploadToImgBB } from '../utils/imgbbUpload.js';
 
 /**
  * @desc    Create a new post
@@ -18,9 +19,18 @@ export const createPost = async (req, res, next) => {
       visibility
     };
 
-    // Add image if uploaded
+    // Upload image to ImgBB if provided
     if (req.file) {
-      postData.image = `/uploads/${req.file.filename}`;
+      try {
+        const imageUrl = await uploadToImgBB(req.file.buffer, req.file.originalname);
+        postData.image = imageUrl;
+      } catch (uploadError) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to upload image',
+          error: uploadError.message
+        });
+      }
     }
 
     const post = await Post.create(postData);
@@ -37,6 +47,7 @@ export const createPost = async (req, res, next) => {
     next(error);
   }
 };
+
 
 /**
  * @desc    Get all posts (public + user's private posts)

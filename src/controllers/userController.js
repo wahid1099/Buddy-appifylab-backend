@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import Post from '../models/Post.js';
+import { uploadToImgBB } from '../utils/imgbbUpload.js';
 
 // Get user profile
 export const getUserProfile = async (req, res) => {
@@ -55,13 +56,29 @@ export const updateUserProfile = async (req, res) => {
     if (lastName) updateData.lastName = lastName;
     if (bio !== undefined) updateData.bio = bio;
 
-    // Handle image uploads if present
+    // Handle image uploads to ImgBB if present
     if (req.files) {
-      if (req.files.profileImage) {
-        updateData.profileImage = `/uploads/${req.files.profileImage[0].filename}`;
-      }
-      if (req.files.coverImage) {
-        updateData.coverImage = `/uploads/${req.files.coverImage[0].filename}`;
+      try {
+        if (req.files.profileImage && req.files.profileImage[0]) {
+          const profileImageUrl = await uploadToImgBB(
+            req.files.profileImage[0].buffer,
+            req.files.profileImage[0].originalname
+          );
+          updateData.profileImage = profileImageUrl;
+        }
+        if (req.files.coverImage && req.files.coverImage[0]) {
+          const coverImageUrl = await uploadToImgBB(
+            req.files.coverImage[0].buffer,
+            req.files.coverImage[0].originalname
+          );
+          updateData.coverImage = coverImageUrl;
+        }
+      } catch (uploadError) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to upload images',
+          error: uploadError.message
+        });
       }
     }
 
@@ -91,6 +108,7 @@ export const updateUserProfile = async (req, res) => {
     });
   }
 };
+
 
 // Get user's posts
 export const getUserPosts = async (req, res) => {

@@ -1,32 +1,13 @@
 import multer from 'multer';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Configure storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../../uploads/'));
-  },
-  filename: function (req, file, cb) {
-    // Generate unique filename: timestamp-randomstring-originalname
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
-});
+// Use memory storage instead of disk storage for serverless
+const storage = multer.memoryStorage();
 
 // File filter - only allow images
 const fileFilter = (req, file, cb) => {
-  // Allowed extensions
   const allowedTypes = /jpeg|jpg|png|gif|webp/;
-  
-  // Check extension
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  
-  // Check mime type
   const mimetype = allowedTypes.test(file.mimetype);
 
   if (mimetype && extname) {
@@ -36,7 +17,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Configure multer
+// Configure multer with memory storage
 const upload = multer({
   storage: storage,
   limits: {
